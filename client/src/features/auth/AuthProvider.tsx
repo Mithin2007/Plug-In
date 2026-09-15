@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { api } from '../../lib/api'
 import type { Session, User, UserRole } from '../../types'
 
-const storageKey = 'chargeconnect.session'
+const storageKey = 'plugin.session'
 
 interface AuthContextValue {
   user: User | null
