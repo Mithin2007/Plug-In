@@ -24,7 +24,7 @@ export class ApiError extends Error {
 type RequestOptions = Omit<RequestInit, 'body'> & { body?: unknown }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const session = localStorage.getItem('chargeconnect.session')
+  const session = localStorage.getItem('plugin.session')
   const headers = new Headers(options.headers)
   headers.set('Content-Type', 'application/json')
   if (session) {
@@ -40,7 +40,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       body: options.body === undefined ? undefined : JSON.stringify(options.body),
     })
   } catch {
-    throw new ApiError('Unable to reach ChargeConnect. Check that the local API is running.', 0)
+    throw new ApiError('Unable to reach Plug-In. Check that the local API is running.', 0)
   }
 
   const payload = (await response.json().catch(() => ({}))) as { data?: T; error?: { message?: string } }
@@ -83,7 +83,7 @@ export const api = {
 function normalizeStation(station: Station & { connectorType: string | string[]; stationType?: 'PUBLIC' | 'COMMUNITY' }): Station {
   return { ...station, connectorType: Array.isArray(station.connectorType) ? station.connectorType : [station.connectorType], isCommunity: station.isCommunity ?? station.stationType === 'COMMUNITY' }
 }
-function normalizeReview(review: Review & { author?: { name: string } }): Review { return { ...review, userName: review.userName || review.author?.name || 'ChargeConnect driver' } }
+function normalizeReview(review: Review & { author?: { name: string } }): Review { return { ...review, userName: review.userName || review.author?.name || 'Plug-In driver' } }
 function normalizeDashboard(data: DashboardData & { stations?: Station[]; stats?: Record<string, number> }): DashboardData {
   const stats = data.stats || {}
   return { ...data, ownedStations: (data.ownedStations || data.stations || []).map(normalizeStation), stats: { ...stats, completedSessions: stats.completedSessions ?? stats.completedReservations ?? 0, estimatedEarnings: stats.estimatedEarnings ?? 0 } }
