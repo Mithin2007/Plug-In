@@ -13,7 +13,7 @@ export function Brand({ light = false }: { light?: boolean }) {
   return (
     <NavLink to="/" className={`brand ${light ? 'brand--light' : ''}`}>
       <span className="brand__mark"><Zap size={18} strokeWidth={2.7} /></span>
-      <span>Charge<span>Connect</span></span>
+      <span>Plug<span>-In</span></span>
     </NavLink>
   )
 }

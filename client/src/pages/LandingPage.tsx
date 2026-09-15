@@ -17,7 +17,7 @@ export function LandingPage() {
             <div className="hero-actions"><Link to="/discover" className="button button--dark">Find a charger <ArrowRight size={18} /></Link><Link to="/login?role=OWNER" className="button button--secondary">Share your charger</Link></div>
             <div className="hero-proof"><span><b>1,200+</b> drivers connected</span><i /><span><b>4.8 / 5</b> community rating</span><i /><span><b>Always</b> transparently demo-ready</span></div>
           </div>
-          <div className="hero-visual" aria-label="Illustration of the ChargeConnect map">
+          <div className="hero-visual" aria-label="Illustration of the Plug-In map">
             <div className="hero-map-grid" />
             <div className="hero-route hero-route--one" /><div className="hero-route hero-route--two" />
             <span className="map-pin-art map-pin-art--one"><Zap size={18} fill="currentColor" /></span>
@@ -30,7 +30,7 @@ export function LandingPage() {
 
         <section className="trust-strip"><span><CheckCircle2 size={18} /> Transparent availability</span><span><ShieldCheck size={18} /> Verified community points</span><span><Compass size={18} /> Built for local journeys</span></section>
 
-        <section className="section-block" id="how-it-works"><div className="section-heading"><Pill>Simple by design</Pill><h2>From search to charge, without the uncertainty.</h2><p>ChargeConnect makes the everyday EV journey feel less like a gamble and more like a plan.</p></div><div className="steps-grid">
+        <section className="section-block" id="how-it-works"><div className="section-heading"><Pill>Simple by design</Pill><h2>From search to charge, without the uncertainty.</h2><p>Plug-In makes the everyday EV journey feel less like a gamble and more like a plan.</p></div><div className="steps-grid">
           <article><span>01</span><MapPinned size={27} /><h3>Find nearby</h3><p>Search a live map of public stations and shared community chargers.</p></article>
           <article><span>02</span><CalendarCheck2 size={27} /><h3>Reserve a slot</h3><p>Check capacity, choose a time, and lock in your charging window.</p></article>
           <article><span>03</span><BatteryCharging size={27} /><h3>Charge & share</h3><p>Navigate there, power up, and leave the network better for the next driver.</p></article>
@@ -40,7 +40,7 @@ export function LandingPage() {
 
         <section className="closing-cta"><Zap size={25} fill="currentColor" /><h2>Ready when your battery isn’t.</h2><p>Find a spot, reserve with confidence, and help make charging more available for everyone.</p><Link to="/discover" className="button button--primary">Explore chargers <ArrowRight size={17} /></Link></section>
       </main>
-      <footer className="landing-footer"><Brand /><span>Find. Reserve. Charge. Share.</span><span>ChargeConnect prototype · Built for better local mobility</span></footer>
+      <footer className="landing-footer"><Brand /><span>Find. Reserve. Charge. Share.</span><span>Plug-In prototype · Built for better local mobility</span></footer>
     </div>
   )
 }

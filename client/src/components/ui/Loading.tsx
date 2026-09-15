@@ -10,7 +10,7 @@ export function PageLoader() {
   return (
     <div className="page-loader">
       <span className="loader-orbit" />
-      <p>Loading ChargeConnect</p>
+      <p>Loading Plug-In</p>
     </div>
   )
 }
