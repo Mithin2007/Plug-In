@@ -1,0 +1,40 @@
+import { AlertTriangle, ArrowLeft, CalendarDays, CheckCircle2, Clock3, MapPin, Navigation, XCircle } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Button } from '../components/ui/Button'
+import { EmptyState } from '../components/ui/EmptyState'
+import { LoadingBlock } from '../components/ui/Loading'
+import { api } from '../lib/api'
+import { currency, formatDateTime, formatTimeRange, reservationStatusLabel } from '../lib/formatters'
+import type { Reservation, Station } from '../types'
+
+function roundTime(date = new Date()) { const next = new Date(date); next.setMinutes(Math.ceil(next.getMinutes() / 30) * 30, 0, 0); return next }
+function toLocalInput(date: Date) { const offset = date.getTimezoneOffset() * 60000; return new Date(date.getTime() - offset).toISOString().slice(0, 16) }
+
+export function ReservePage() {
+  const { id = '' } = useParams(); const navigate = useNavigate()
+  const [station, setStation] = useState<Station | null>(null); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [error, setError] = useState<string | null>(null)
+  const [start, setStart] = useState(() => toLocalInput(roundTime())); const [duration, setDuration] = useState(30)
+  useEffect(() => { api.getStation(id).then(setStation).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false)) }, [id])
+  const end = useMemo(() => new Date(new Date(start).getTime() + duration * 60000), [start, duration])
+  const reserve = async () => { setSaving(true); setError(null); try { const reservation = await api.createReservation({ stationId: id, startTime: new Date(start).toISOString(), endTime: end.toISOString() }); navigate(`/reservation-confirmed?id=${reservation.id}`) } catch (reason) { setError(reason instanceof Error ? reason.message : 'Reservation failed.') } finally { setSaving(false) } }
+  if (loading) return <div className="content-page"><LoadingBlock lines={6} /></div>
+  if (!station) return <div className="content-page"><p className="form-error">{error || 'Station not found.'}</p></div>
+  return <div className="content-page reservation-page"><Link className="back-link" to={`/stations/${id}`}><ArrowLeft size={16} /> Charger details</Link><div className="page-title"><span className="eyebrow">Reservation</span><h1>Choose your charging window</h1><p>We’ll check slot capacity for the full time you choose.</p></div><div className="reservation-flow"><section className="booking-form-card"><div className="booking-step"><span>1</span><div><h2>When will you arrive?</h2><p>Select a date and start time. Times are shown in India Standard Time.</p></div></div><label className="form-field"><span>Start time</span><input type="datetime-local" min={toLocalInput(roundTime())} value={start} onChange={(event) => setStart(event.target.value)} /></label><div className="booking-step"><span>2</span><div><h2>How long do you need?</h2><p>Most top-ups take 30–60 minutes.</p></div></div><div className="duration-picker">{[30, 45, 60, 90, 120].map((value) => <button key={value} type="button" className={duration === value ? 'duration-option duration-option--active' : 'duration-option'} onClick={() => setDuration(value)}>{value < 60 ? `${value} min` : `${value / 60} hr`}</button>)}</div>{error && <div className="inline-error"><AlertTriangle size={17} /> {error}</div>}<Button fullWidth loading={saving} onClick={() => void reserve()} disabled={!start}>Confirm reservation <CheckCircle2 size={17} /></Button><p className="booking-note">No payment is taken in prototype mode. A server-side check prevents overlapping reservations.</p></section><aside className="booking-summary"><span className="booking-summary__label">Your stop</span><h2>{station.name}</h2><p><MapPin size={15} /> {station.address}</p><hr /><div><span>Connector</span><b>{station.connectorType.join(' · ')}</b></div><div><span>Speed</span><b>Up to {station.chargingSpeedKw} kW</b></div><div><span>Price</span><b>{currency(station.pricePerKwh)} / kWh</b></div><div><span>Window</span><b>{start ? formatTimeRange(new Date(start).toISOString(), end.toISOString()) : 'Choose a time'}</b></div></aside></div></div>
+}
+
+export function ReservationConfirmationPage() {
+  const [params] = useSearchParams(); const id = params.get('id') || ''; const [reservation, setReservation] = useState<Reservation | null>(null)
+  useEffect(() => { api.getReservations().then((items) => setReservation(items.find((item) => item.id === id) || null)).catch(() => setReservation(null)) }, [id])
+  if (!reservation) return <div className="content-page"><LoadingBlock lines={5} /></div>
+  const station = reservation.station
+  return <div className="content-page confirmation-page"><div className="confirmation-card"><div className="confirmation-icon"><CheckCircle2 size={42} /></div><span className="eyebrow">Reservation confirmed</span><h1>Your charger is held.</h1><p>We’ve saved your charging window. You’ll find it in My reservations whenever you need it.</p><div className="confirmation-ticket"><div><span>Station</span><b>{station?.name || reservation.stationId}</b></div><div><span>When</span><b>{formatDateTime(reservation.startTime)}</b><small>{formatTimeRange(reservation.startTime, reservation.endTime)}</small></div><div><span>Reservation ID</span><b>CC-{reservation.id.slice(-6).toUpperCase()}</b></div></div><div className="confirmation-actions">{station && <a className="button button--secondary" href={`https://www.google.com/maps/dir/?api=1&destination=${station.latitude},${station.longitude}`} target="_blank" rel="noreferrer"><Navigation size={17} /> Get directions</a>}<Link to="/reservations" className="button button--primary">My reservations <CalendarDays size={17} /></Link></div></div></div>
+}
+
+export function MyReservationsPage() {
+  const [reservations, setReservations] = useState<Reservation[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null)
+  const load = () => { setLoading(true); api.getReservations().then(setReservations).catch((reason: Error) => setError(reason.message)).finally(() => setLoading(false)) }
+  useEffect(load, [])
+  const cancel = async (id: string) => { try { await api.cancelReservation(id); load() } catch (reason) { setError(reason instanceof Error ? reason.message : 'Unable to cancel.') } }
+  return <div className="content-page reservations-page"><div className="page-title"><span className="eyebrow">Your plans</span><h1>My reservations</h1><p>Upcoming stops and a clear history of your ChargeConnect sessions.</p></div>{error && <p className="form-error">{error}</p>}{loading ? <LoadingBlock lines={6} /> : reservations.length ? <div className="reservation-list">{reservations.map((reservation) => <article className="reservation-row" key={reservation.id}><div className="reservation-row__date"><b>{new Intl.DateTimeFormat('en-IN', { day: '2-digit' }).format(new Date(reservation.startTime))}</b><span>{new Intl.DateTimeFormat('en-IN', { month: 'short' }).format(new Date(reservation.startTime))}</span></div><div className="reservation-row__main"><span className={`reservation-status reservation-status--${reservation.status.toLowerCase()}`}>{reservationStatusLabel[reservation.status]}</span><h2>{reservation.station?.name || 'Charging reservation'}</h2><p><Clock3 size={15} /> {formatDateTime(reservation.startTime)} · {formatTimeRange(reservation.startTime, reservation.endTime)}</p></div><div className="reservation-row__actions"><Link className="button button--secondary" to={`/stations/${reservation.stationId}`}>Station</Link>{reservation.status === 'CONFIRMED' && <Button variant="ghost" onClick={() => void cancel(reservation.id)}><XCircle size={16} /> Cancel</Button>}</div></article>)}</div> : <EmptyState icon={<CalendarDays size={27} />} title="No reservations yet" detail="Your next charging plan will show up here." action={<Link className="button button--primary" to="/discover">Find a charger</Link>} />}</div>
+}
