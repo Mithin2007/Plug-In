@@ -18,11 +18,14 @@ function markerIcon(station: Station, selected: boolean) {
   })
 }
 
-function MapFocus({ station }: { station?: Station }) {
+function MapFocus({ station, userLocation }: { station?: Station; userLocation?: [number, number] }) {
   const map = useMap()
   useEffect(() => {
     if (station) map.flyTo([station.latitude, station.longitude], Math.max(map.getZoom(), 15), { duration: 0.5 })
   }, [map, station])
+  useEffect(() => {
+    if (userLocation) map.flyTo(userLocation, Math.max(map.getZoom(), 14), { duration: 0.5 })
+  }, [map, userLocation])
   return null
 }
 
@@ -36,7 +39,7 @@ export function StationMap({ stations, selectedStation, onSelect, userLocation }
   return (
     <MapContainer center={center} zoom={14} scrollWheelZoom className="station-map" aria-label="Charger discovery map">
       <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <MapFocus station={selectedStation} />
+      <MapFocus station={selectedStation} userLocation={userLocation} />
       {userLocation && <Marker position={userLocation} icon={L.divIcon({ className: 'user-location-wrapper', html: '<span class="user-location-marker"></span>', iconSize: [20, 20], iconAnchor: [10, 10] })}><Popup>Your location</Popup></Marker>}
       {stations.map((station) => (
         <Marker key={station.id} position={[station.latitude, station.longitude]} icon={markerIcon(station, selectedStation?.id === station.id)} eventHandlers={{ click: () => onSelect(station) }}>
