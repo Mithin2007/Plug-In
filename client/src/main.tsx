@@ -4,6 +4,7 @@ import './index.css'
 import './app.css'
 import './app2.css'
 import './polish.css'
+import './overhaul.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
