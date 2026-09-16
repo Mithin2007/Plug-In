@@ -10,8 +10,10 @@ const baseNav = [
 ]
 
 export function Brand({ light = false }: { light?: boolean }) {
+  const { user } = useAuth()
+  const home = user?.role === 'OWNER' ? '/owner' : user?.role === 'ADMIN' ? '/admin' : user ? '/discover' : '/'
   return (
-    <NavLink to="/" className={`brand ${light ? 'brand--light' : ''}`}>
+    <NavLink to={home} className={`brand ${light ? 'brand--light' : ''}`}>
       <span className="brand__mark"><Zap size={18} strokeWidth={2.7} /></span>
       <span>Plug<span>-In</span></span>
     </NavLink>
@@ -30,7 +32,7 @@ export function AppShell() {
     : user.role === 'ADMIN'
       ? [{ to: '/admin', label: 'Moderation', icon: ShieldCheck }]
       : [{ to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard }]
-  const navItems = [...baseNav, ...roleNav]
+  const navItems = user.role === 'USER' ? [...roleNav, ...baseNav] : [...baseNav, ...roleNav]
 
   const close = () => setMenuOpen(false)
   const logoutAndGoHome = () => {
