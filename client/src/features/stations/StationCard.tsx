@@ -6,7 +6,7 @@ import { Pill, StatusBadge, VerificationBadge } from '../../components/ui/Badge'
 
 export function StationCard({ station, selected = false, onSelect }: { station: Station; selected?: boolean; onSelect?: () => void }) {
   return (
-    <article className={`station-card ${selected ? 'station-card--selected' : ''}`} onClick={onSelect}>
+    <article className={`station-card ${selected ? 'station-card--selected' : ''}`} onClick={onSelect} onKeyDown={(event) => { if ((event.key === 'Enter' || event.key === ' ') && onSelect) { event.preventDefault(); onSelect() } }} role="button" tabIndex={0} aria-pressed={selected}>
       <div className="station-card__top">
         <div className="station-card__title-block">
           <div className="station-card__eyebrow"><span className={`station-type-dot ${station.isCommunity ? 'station-type-dot--community' : ''}`} />{station.isCommunity ? 'Community charger' : 'Public station'}</div>

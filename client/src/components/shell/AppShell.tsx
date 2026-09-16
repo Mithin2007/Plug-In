@@ -51,7 +51,7 @@ export function AppShell() {
             ))}
           </nav>
           <div className="profile-menu">
-            <button className="profile-trigger" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen}>
+            <button className="profile-trigger" type="button" onClick={() => setProfileOpen((open) => !open)} aria-expanded={profileOpen} aria-haspopup="menu">
               <span className="avatar">{initials(user.name)}</span>
               <span className="profile-trigger__copy"><b>{user.name.split(' ')[0]}</b><small>{user.role === 'OWNER' ? 'Charger owner' : user.role === 'ADMIN' ? 'Platform admin' : 'EV driver'}</small></span>
               <ChevronDown size={15} />
@@ -76,8 +76,8 @@ export function AppShell() {
             <div className="mobile-menu__top"><Brand /><button className="icon-button" type="button" onClick={close} aria-label="Close navigation"><X size={21} /></button></div>
             <div className="mobile-menu__user"><span className="avatar avatar--large">{initials(user.name)}</span><div><b>{user.name}</b><small>{user.email}</small></div></div>
             <nav aria-label="Mobile navigation">
-              {navItems.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} onClick={close}><Icon size={18} />{label}</NavLink>)}
-              <NavLink to="/profile" onClick={close}><CircleUserRound size={18} />Profile</NavLink>
+              {navItems.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} onClick={close} className={({ isActive }) => isActive ? 'mobile-nav-link mobile-nav-link--active' : 'mobile-nav-link'}><Icon size={18} />{label}</NavLink>)}
+              <NavLink to="/profile" onClick={close} className={({ isActive }) => isActive ? 'mobile-nav-link mobile-nav-link--active' : 'mobile-nav-link'}><CircleUserRound size={18} />Profile</NavLink>
             </nav>
             <button className="mobile-menu__logout" type="button" onClick={logoutAndGoHome}>Sign out</button>
           </aside>

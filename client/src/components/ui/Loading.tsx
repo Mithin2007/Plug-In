@@ -1,6 +1,6 @@
 export function LoadingBlock({ lines = 3 }: { lines?: number }) {
   return (
-    <div className="loading-block" aria-label="Loading">
+    <div className="loading-block" role="status" aria-label="Loading" aria-live="polite">
       {Array.from({ length: lines }, (_, index) => <span key={index} className="skeleton" />)}
     </div>
   )
